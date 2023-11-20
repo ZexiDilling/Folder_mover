@@ -18,8 +18,10 @@ def main(config):
     :type config: configparser.ConfigParser
     :return:
     """
+    theme = None
+    window = main_layout(theme)
 
-    window = main_layout()
+    themes = sg.theme_list()
 
     while True:
 
@@ -102,7 +104,11 @@ def main(config):
         if event == "About":
             sg.Popup("Echo Data Listening and analyses. Programmed By Charlie for DTU SCore")
 
-
+        if event in themes:
+            selected_theme = event
+            window.close()
+            window = main_layout(selected_theme)
+            window.read()
 
 
 
