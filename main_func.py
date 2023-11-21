@@ -19,11 +19,11 @@ class MyEventHandler(FileSystemEventHandler):
         This is the class that is listening for files being created, moved or deleted.
         ATM the system only react to newly created files"""
 
-    def __init__(self, window):
-        self.config = configparser.ConfigParser()
-        self.config.read("config.ini")
-        self.source_folder = self.config["Folder"]["in"]
-        self.top_destination_folder = self.config["Folder"]["out"]
+    def __init__(self, window, config):
+
+        self.config = config
+        self.source_folder = self.config[r"Folder"]["in"]
+        self.top_destination_folder = self.config[r"Folder"]["out"]
         self.window = window
 
     def on_created(self, event):
@@ -112,7 +112,7 @@ def listening_controller(config, run, window):
 
     path = config["Folder"]["in"]
 
-    event_handler = MyEventHandler(window)
+    event_handler = MyEventHandler(window, config)
 
     observer = Observer()
     observer.schedule(event_handler, path, recursive=True)

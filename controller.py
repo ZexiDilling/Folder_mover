@@ -4,24 +4,25 @@ import PySimpleGUI as sg
 import threading
 import time
 
+
 from gui import main_layout
-from helper_func import config_writer
+from helper_func import config_writer, config_handler
 from main_func import listening_controller, sorting_folder
 
 
-def main(config):
+def main():
     """
     The main GUI setup and control for the whole program
     The while loop, is listening for button presses (Events) and will call different functions depending on
     what have been pushed.
-    :param config: The config handler, with all the default information in the config file.
-    :type config: configparser.ConfigParser
     :return:
     """
-    theme = None
-    window = main_layout(theme)
 
-    themes = sg.theme_list()
+    theme = None
+    all_themes = sg.theme_list()
+    window = main_layout(theme, all_themes)
+
+    config = config_handler()
 
     while True:
 
@@ -50,7 +51,7 @@ def main(config):
                 config_writer(config, config_heading, data_dict)
 
             threading.Thread(target=listening_controller, args=(config, True, window,), daemon=True).start()
-            threading.Thread(target=progressbar, args=(config, True, window,), daemon=True).start()
+            threading.Thread(target=progressbar, args=(True, window,), daemon=True).start()
 
         if event == "-KILL_BUTTON-":
             window["-KILL-"].update(value=True)
@@ -102,17 +103,16 @@ def main(config):
             sg.Popup(info)
 
         if event == "About":
-            sg.Popup("Echo Data Listening and analyses. Programmed By Charlie for DTU SCore")
+            sg.Popup("File Mover and sorter. Programmed By Charlie")
 
-        if event in themes:
+        if event in all_themes:
             selected_theme = event
             window.close()
-            window = main_layout(selected_theme)
+            window = main_layout(selected_theme, all_themes)
             window.read()
 
 
-
-def progressbar(config, run, window):
+def progressbar(run, window):
     """
     The progress bar, that shows the program working
     :param run: If the bar needs to be running or not
@@ -124,23 +124,22 @@ def progressbar(config, run, window):
     min_timer = 0
     max_timer = 100
     counter = 0
-
-    # Timer for when too sent a report. if there are no files created for the period of time, a report will be sent.
-    # set one for runs where there is not set a plate counter, or if the platform fails.
-
+    runner = "pos"
 
     while run:
-        current_time = time.time()
         if counter == min_timer:
             runner = "pos"
         elif counter == max_timer:
             runner = "neg"
-
+        else:
+            pass
 
         if runner == "pos":
             counter += 10
         elif runner == "neg":
             counter -= 10
+        else:
+            pass
 
         window["-BAR-"].update(counter)
 

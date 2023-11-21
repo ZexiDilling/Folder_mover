@@ -1,6 +1,10 @@
+import os
+import sys
 from pathlib import Path
 from os.path import getctime
 from datetime import datetime
+
+import configparser
 
 
 def config_writer(config, heading, data_dict):
@@ -24,9 +28,8 @@ def config_writer(config, heading, data_dict):
     for data in data_dict:
         # Set the value in the config file for the given heading and data
         config.set(heading, data, data_dict[data])
-
     # Open the config file for writing
-    with open("config.ini", "w") as config_file:
+    with open("./stuff/config.ini", "w") as config_file:
         # Write the config data to the file
         config.write(config_file)
 
@@ -182,6 +185,24 @@ def create_new_folder(top_destination_folder, source_folder):
     destination_folder = top_destination_folder / folder_name
 
     return str(destination_folder)
+
+
+def config_handler():
+    config = configparser.ConfigParser()
+    config_file = "config.ini"
+    config_file = resource_path(config_file)
+    config.read(config_file)
+    return config
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 if __name__ == "__main__":
